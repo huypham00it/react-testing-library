@@ -1,0 +1,38 @@
+import React from 'react'
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
+import { render, cleanup, fireEvent } from '@testing-library/react';
+import { initialState, reducer } from '../store/reducer'
+import TestRedux from '../components/TestRedux'
+import '@testing-library/jest-dom/extend-expect';
+
+const renderWithRedux = (
+    component,
+    { initialState, store = createStore(reducer, initialState) } = {}
+) => {
+    return {
+        ...render(<Provider store={store}>{component}</Provider>),
+        store,
+    }
+}
+
+afterEach(cleanup);
+
+it('checks initial state is equal to 0', () => {
+    const { getByTestId } = renderWithRedux(<TestRedux />, {
+        initialState: { count: 5 }
+    })
+    expect(getByTestId('counter')).toHaveTextContent('5')
+})
+
+it('increase counter', () => {
+    const { getByTestId } = renderWithRedux(<TestRedux />)
+    fireEvent.click(getByTestId('button-up'))
+    expect(getByTestId('counter')).toHaveTextContent('1')
+})
+
+it('increase counter', () => {
+    const { getByTestId } = renderWithRedux(<TestRedux />)
+    fireEvent.click(getByTestId('button-down'))
+    expect(getByTestId('counter')).toHaveTextContent('-1')
+})
